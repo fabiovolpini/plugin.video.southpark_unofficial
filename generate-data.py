@@ -188,6 +188,17 @@ def _make_episode(data, season, episode, lang):
 def _has_extra(x):
 	return "loadMore" in x and x["loadMore"] != None and "type" in x and x["type"] == "video-guide"
 
+def _unique_episodes(eps):
+	res = []
+	hasep = []
+	for ep in eps:
+		title = _dk(ep, ["meta", "subHeader"], None),
+		if title is None or title in hasep:
+			continue
+		hasep.append(title)
+		res.append(ep)
+	return res
+
 def _parse_episodes(data, season, lang, inverted, referer_url):
 	domapi = APIS[lang]["domapi"]
 	print("parsing episodes from season", season + 1)
@@ -207,6 +218,7 @@ def _parse_episodes(data, season, lang, inverted, referer_url):
 	else:
 		return []
 
+	lists = _unique_episodes(lists)
 	n_episodes = len(lists)
 	lists = [_make_episode(lists[i], season, n_episodes - i - 1 if inverted else i, lang) for i in range(0, len(lists))]
 
@@ -274,19 +286,12 @@ def generate_data(lang, old_data):
 		if url != None:
 			referer = domain + url
 			data = _download_data(domain + url, False)
-		lists = _parse_episodes(data, len(seasons_urls) - index, lang, index == 1, referer)
+		lists = _parse_episodes(data, index - 1, lang, False, referer)
 		if len(lists) < 1 and len(seasons) < 1:
 			continue
 		seasons.append(lists)
 		if old_data:
 			break
-
-	if old_data:
-		last_season = seasons[0]
-		seasons = old_data["seasons"]
-		seasons[-1] = last_season
-	else:
-		seasons.reverse()
 
 	return {
 		"created": "{}".format(datetime.datetime.now()),
