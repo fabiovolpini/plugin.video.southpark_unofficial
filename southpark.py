@@ -171,7 +171,7 @@ def _load_data(lang, path):
             with open(path, "r") as fp:
                 addon_data = _json.load(fp, strict=False)
             if "date" in addon_data:
-                if addon_data["date"] != None:
+                if addon_data["date"] is not None:
                     now = datetime.datetime.now()
                     date = _datetime(addon_data["date"])
                     delta = now - date
@@ -186,10 +186,10 @@ def _load_data(lang, path):
             addon_data = None
 
     if addon_data is None:
-        url = "https://raw.githubusercontent.com/wargio/plugin.video.southpark_unofficial/addon-data/addon-data-{}.json".format(
+        url = "https://raw.githubusercontent.com/fabiovolpini/plugin.video.southpark_unofficial/addon-data/addon-data-{}.json".format(
             lang)
         addon_data = _http_get(url, True)
-        addon_data["date"] = "{}".format(datetime.datetime.now()),
+        addon_data["date"] = f"{datetime.datetime.now()}",
 
         with open(path, 'w') as output:
             output.truncate()
